@@ -69,6 +69,21 @@ function AuthContextProvider(props) {
         }
     }
 
+    auth.loginUser = async function(userData, store) {
+        const response = await api.loginUser(userData)
+        if (response.status === 200) {
+            authReducer({
+                type: AuthActionType.GET_LOGGED_IN,
+                payload: {
+                    user: response.data.user,
+                    loggedIn: true
+                }
+            })
+            history.push("/");
+            store.loadIdNamePairs();
+        }
+    }
+
     return (
         <AuthContext.Provider value={{
             auth
