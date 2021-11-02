@@ -8,18 +8,21 @@ console.log("create AuthContext: " + AuthContext);
 // THESE ARE ALL THE TYPES OF UPDATES TO OUR AUTH STATE THAT CAN BE PROCESSED
 export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
-    REGISTER_USER: "REGISTER_USER"
+    REGISTER_USER: "REGISTER_USER",
+    CHANGE_ALERT: "CHANGE_ALERT"
 }
 
 function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
-        loggedIn: false
+        loggedIn: false,
+        alert: ""
     });
     const history = useHistory();
 
     useEffect(() => {
         auth.getLoggedIn();
+        console.log("HII")
     }, []);
 
     const authReducer = (action) => {
@@ -35,6 +38,11 @@ function AuthContextProvider(props) {
                 return setAuth({
                     user: payload.user,
                     loggedIn: true
+                })
+            }
+            case AuthActionType.CHANGE_ALERT: {
+                return setAuth({
+                    alert: payload.alert
                 })
             }
             default:
@@ -56,17 +64,30 @@ function AuthContextProvider(props) {
     }
 
     auth.registerUser = async function(userData, store) {
-        const response = await api.registerUser(userData);      
-        if (response.status === 200) {
+        try{
+            const response = await api.registerUser(userData);      
+            if (response.status === 200) {
+                authReducer({
+                    type: AuthActionType.REGISTER_USER,
+                    payload: {
+                        user: response.data.user
+                    }
+                })
+                history.push("/");
+                store.loadIdNamePairs();
+            } 
+        }catch(err){
+
             authReducer({
-                type: AuthActionType.REGISTER_USER,
+                type: AuthActionType.CHANGE_ALERT,
                 payload: {
-                    user: response.data.user
+                    alert: err.response.data.errorMessage
                 }
             })
-            history.push("/");
-            store.loadIdNamePairs();
+
         }
+
+    
     }
 
     auth.loginUser = async function(userData, store) {
@@ -82,6 +103,15 @@ function AuthContextProvider(props) {
             history.push("/");
             store.loadIdNamePairs();
         }
+    }
+
+    auth.clearAlert = function(){
+        authReducer({
+            type: AuthActionType.CHANGE_ALERT,
+            payload: {
+                alert: ""
+            }
+        })
     }
 
     return (
