@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext} from 'react'
 import AuthContext from '../auth'
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -7,17 +7,14 @@ import Modal from '@mui/material/Modal';
 
 export default function AlertModal(){
     const { auth } = useContext(AuthContext);
-    const [open, setOpen] = useState(false);
     const handleClose = function(){
         auth.clearAlert()
-        console.log(auth.alert)
     }
 
     let msg = auth.alert
     if(!msg){
         msg = ""
     }
-    console.log(msg)
 
     const style = {
         position: 'absolute',
