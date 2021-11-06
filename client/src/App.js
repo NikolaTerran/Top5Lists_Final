@@ -12,6 +12,7 @@ import {
     WorkspaceScreen,
     AlertModel
 } from './components'
+import DeleteModal from './components/DeleteModel';
 /*
     This is our application's top-level component.
     
@@ -37,6 +38,7 @@ const App = () => {
                     </Switch>
                     <Statusbar />
                     <AlertModel />
+                    <DeleteModal />
                 </GlobalStoreContextProvider>
             </AuthContextProvider>
         </BrowserRouter>
