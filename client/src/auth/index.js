@@ -111,6 +111,16 @@ function AuthContextProvider(props) {
         }
     }
 
+    auth.logoutUser = function(){
+        authReducer({
+            type: AuthActionType.GET_LOGGED_IN,
+                    payload: {
+                        user: null,
+                        loggedIn: false
+                    }
+        })
+    }
+
     auth.clearAlert = function(){
         authReducer({
             type: AuthActionType.CHANGE_ALERT,
