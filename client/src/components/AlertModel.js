@@ -8,12 +8,16 @@ import Modal from '@mui/material/Modal';
 export default function AlertModal(){
     const { auth } = useContext(AuthContext);
     const [open, setOpen] = useState(false);
-    const handleOpen = () => setOpen(true)
     const handleClose = function(){
         auth.clearAlert()
-        console.log(auth.alert)}
+        console.log(auth.alert)
+    }
 
     let msg = auth.alert
+    if(!msg){
+        msg = ""
+    }
+    console.log(msg)
 
     const style = {
         position: 'absolute',
@@ -33,10 +37,11 @@ export default function AlertModal(){
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
         >
-        <Box sx={style}>
+        <Box sx={style} textAlign='center'>
             <Typography id="modal-modal-title" variant="h6" component="h2">
             {msg}
             </Typography>
+            <Button variant="contained" onClick={handleClose}>close</Button>
         </Box>
         </Modal>
     )

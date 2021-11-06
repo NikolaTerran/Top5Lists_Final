@@ -23,6 +23,7 @@ function AuthContextProvider(props) {
     useEffect(() => {
         auth.getLoggedIn();
         console.log("HII")
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const authReducer = (action) => {
@@ -77,31 +78,36 @@ function AuthContextProvider(props) {
                 store.loadIdNamePairs();
             } 
         }catch(err){
-
             authReducer({
                 type: AuthActionType.CHANGE_ALERT,
                 payload: {
                     alert: err.response.data.errorMessage
                 }
             })
-
-        }
-
-    
+        }    
     }
 
     auth.loginUser = async function(userData, store) {
-        const response = await api.loginUser(userData)
-        if (response.status === 200) {
+        try{
+            const response = await api.loginUser(userData)
+            if (response.status === 200) {
+                authReducer({
+                    type: AuthActionType.GET_LOGGED_IN,
+                    payload: {
+                        user: response.data.user,
+                        loggedIn: true
+                    }
+                })
+                history.push("/");
+                store.loadIdNamePairs();
+            }
+        }catch(err){
             authReducer({
-                type: AuthActionType.GET_LOGGED_IN,
+                type: AuthActionType.CHANGE_ALERT,
                 payload: {
-                    user: response.data.user,
-                    loggedIn: true
+                    alert: err.response.data.errorMessage
                 }
             })
-            history.push("/");
-            store.loadIdNamePairs();
         }
     }
 

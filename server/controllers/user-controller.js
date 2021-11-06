@@ -82,7 +82,20 @@ loginUser = async (req, res) => {
     try{
         User.findOne({ email: req.body.email }, async function(err,user) {
             if(err) throw err
-            const isMatch = await bcrypt.compare(req.body.password, user.passwordHash)
+            const { email, password } = req.body
+            if (!email || !password) {
+                return res
+                    .status(400)
+                    .json({ errorMessage: "Please enter all required fields." })
+                    .send()
+            }
+            if (!user){
+                return res
+                    .status(400)
+                    .json({errorMessage: "The email doesn't exist." })
+                    .send()
+            }
+            const isMatch = await bcrypt.compare(password, user.passwordHash)
             if(isMatch){
                 const token = auth.signToken(user)
                 await res.cookie("token", token, {
@@ -94,15 +107,21 @@ loginUser = async (req, res) => {
                     user: {
                         firstName: user.firstName,
                         lastName: user.lastName,
-                        email: req.body.email
+                        email: user.email
                     }
-                }).send();    
+                }).send()
             }else{
-                res.status(500).send();
+                return res
+                .status(400)
+                .json({
+                    success: false,
+                    errorMessage: "Incorrect password or email address"
+                }).send()
             }
         })
     }catch(err){
-        console.log(err)
+        console.error(err);
+        res.status(500).send();
     }
 }
 
