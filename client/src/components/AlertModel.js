@@ -1,9 +1,11 @@
 import React, { useContext} from 'react'
 import AuthContext from '../auth'
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
 import Modal from '@mui/material/Modal';
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function AlertModal(){
     const { auth } = useContext(AuthContext);
@@ -22,9 +24,6 @@ export default function AlertModal(){
         left: '50%',
         transform: 'translate(-50%, -50%)',
         width: 400,
-        bgcolor: 'background.paper',
-        border: '2px solid #000',
-        boxShadow: 24,
         p: 4,
     };
     return (
@@ -34,12 +33,27 @@ export default function AlertModal(){
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
         >
-        <Box sx={style} textAlign='center'>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-            {msg}
-            </Typography>
-            <Button variant="contained" onClick={handleClose}>close</Button>
-        </Box>
+            <Box sx={style}>
+                <Collapse in={msg === "" ? false : true}>
+                    <Alert severity="error"
+                    action={
+                        <IconButton
+                        aria-label="close"
+                        color="inherit"
+                        size="small"
+                        onClick={() => {
+                            auth.clearAlert()
+                        }}
+                        >
+                        <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                    }
+                    sx={{ mb: 2 }}
+                    >
+                    {msg}
+                    </Alert>
+                </Collapse>
+            </Box>
         </Modal>
     )
 }

@@ -22,7 +22,6 @@ function AuthContextProvider(props) {
 
     useEffect(() => {
         auth.getLoggedIn();
-        console.log("HII")
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

@@ -73,6 +73,7 @@ export default function AppBanner() {
 
     let editToolbar = "";
     let menu = loggedOutMenu;
+    
     if (auth.loggedIn) {
         menu = loggedInMenu;
         if (store.currentList) {
