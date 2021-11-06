@@ -3,6 +3,8 @@ import Top5Item from './Top5Item.js'
 import List from '@mui/material/List';
 import { Typography } from '@mui/material'
 import { GlobalStoreContext } from '../store/index.js'
+import SplashScreen from './SplashScreen'
+import AuthContext from '../auth'
 /*
     This React component lets us edit a loaded list, which only
     happens when we are on the proper route.
@@ -11,6 +13,7 @@ import { GlobalStoreContext } from '../store/index.js'
 */
 function WorkspaceScreen() {
     const { store } = useContext(GlobalStoreContext);
+    const { auth } = useContext(AuthContext);
 
     let editItems = "";
     if (store.currentList) {
@@ -27,6 +30,7 @@ function WorkspaceScreen() {
                 }
             </List>;
     }
+    if(auth.loggedIn){
     return (
         <div id="top5-workspace">
             <div id="workspace-edit">
@@ -40,7 +44,9 @@ function WorkspaceScreen() {
                 {editItems}
             </div>
         </div>
-    )
+    )}else{
+        return <SplashScreen />
+    }
 }
 
 export default WorkspaceScreen;
