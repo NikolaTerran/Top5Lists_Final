@@ -12,9 +12,11 @@ import EditIcon from '@mui/icons-material/Edit';
     @author McKilla Gorilla
 */
 function Top5Item(props) {
+    const {text, index} = props
     const { store } = useContext(GlobalStoreContext);
     const [editActive, setEditActive] = useState(false);
     const [draggedTo, setDraggedTo] = useState(0);
+    const [newText, setNewText] = useState(text);
 
     function handleDragStart(event, targetId) {
         event.dataTransfer.setData("item", targetId);
@@ -36,6 +38,36 @@ function Top5Item(props) {
         setDraggedTo(false);
     }
 
+    function handleToggleEdit(event) {
+        event.stopPropagation();
+        toggleEdit();
+        event.target.blur()
+    }
+    function toggleEdit() {
+        let newActive = !editActive;
+        store.setIsItemEditActive(newActive);
+        setEditActive(newActive);
+    }
+
+    function handleKeyPress(event) {
+        if (event.code === "Enter") {
+            event.preventDefault();
+            handleBlur(event)
+        }
+    }
+    function handleBlur(event) {
+        if(newText !== "" && newText !== text){
+            store.addUpdateItemTransaction(index,event.target.value)
+            toggleEdit();
+        }else{
+            toggleEdit();
+        }
+    }
+    function handleUpdateText(event) {
+        event.preventDefault();
+        setNewText(event.target.value)
+    }
+
     function handleDrop(event, targetId) {
         event.preventDefault();
         let sourceId = event.dataTransfer.getData("item");
@@ -48,13 +80,32 @@ function Top5Item(props) {
         store.addMoveItemTransaction(sourceId, targetId);
     }
 
-    let { index } = props;
-
     let itemClass = "top5-item";
     if (draggedTo) {
         itemClass = "top5-item-dragged-to";
     }
-
+    if(editActive){
+        return <ListItem
+        id={'item-' + (index+1)}
+        key={props.key}
+        className={itemClass}
+        sx={{ display: 'flex', p: 1 }}
+        
+        >
+        <TextField 
+            label="Outlined" 
+            variant="outlined" 
+            style={{
+                fontSize: '48pt',
+                width: '61.8%'
+            }}
+            type='text'
+            value={newText}
+            onKeyPress={handleKeyPress}
+            onBlur={handleBlur}
+            onChange={handleUpdateText}/>
+            </ListItem>
+    }else{
     return (
             <ListItem
                 id={'item-' + (index+1)}
@@ -82,14 +133,14 @@ function Top5Item(props) {
                     width: '100%'
                 }}
             >
-            <Box sx={{ p: 1 }}>
-                <IconButton aria-label='edit'>
+        <Box sx={{ p: 1 }}>
+                <IconButton aria-label='edit' onClick={handleToggleEdit} onKeyPress={handleKeyPress} onBlur={handleBlur} onChange={handleUpdateText}>
                     <EditIcon style={{fontSize:'48pt'}}  />
                 </IconButton>
             </Box>
                 <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>
             </ListItem>
-    )
+    )}
 }
 
 export default Top5Item;
