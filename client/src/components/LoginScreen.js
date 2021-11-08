@@ -95,6 +95,7 @@ export default function LoginScreen() {
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
+                sx={{color: "gray",textDecoration:'line-through'}}
               />
               <Button
                 type="submit"

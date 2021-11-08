@@ -93,7 +93,7 @@ function Top5Item(props) {
         
         >
         <TextField 
-            label="Outlined" 
+            label="Top5Item" 
             variant="outlined" 
             style={{
                 fontSize: '48pt',
@@ -103,7 +103,8 @@ function Top5Item(props) {
             value={newText}
             onKeyPress={handleKeyPress}
             onBlur={handleBlur}
-            onChange={handleUpdateText}/>
+            onChange={handleUpdateText}
+            autoFocus/>
             </ListItem>
     }else{
     return (

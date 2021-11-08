@@ -298,6 +298,13 @@ function GlobalStoreContextProvider(props) {
         }
     }
 
+    store.resetCurrentList = function() {
+        storeReducer({
+            type: GlobalStoreActionType.SET_CURRENT_LIST,
+            payload: null
+        });
+    }
+
     store.addMoveItemTransaction = function (start, end) {
         let transaction = new MoveItem_Transaction(store, start, end);
         tps.addTransaction(transaction);

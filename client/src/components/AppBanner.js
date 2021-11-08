@@ -28,6 +28,7 @@ export default function AppBanner() {
 
     const handleLogout = () => {
         handleMenuClose();
+        store.resetCurrentList()
         auth.logoutUser();
     }
 
@@ -73,7 +74,7 @@ export default function AppBanner() {
 
     let editToolbar = "";
     let menu = loggedOutMenu;
-    
+
     if (auth.loggedIn) {
         menu = loggedInMenu;
         if (store.currentList) {
