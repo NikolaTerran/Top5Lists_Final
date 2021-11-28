@@ -22,7 +22,6 @@ export default function SplashScreen() {
             <Typography variant="h1" component="h2" sx={{margin:'20px'}}> The Top 5 Lister </Typography>
             <Typography variant="h4" component="h2" sx={{margin:'50px'}}> A Site Where You Can Make Lists About Your Favorite Items! </Typography>
             <Typography variant="h6" component="h2" sx={{margin:'40px'}}> A CSE316 Student Project <br></br>by Tianrun Liu</Typography>
-            
             <Button variant="contained" sx={buttonStyle}><Link to='/register/'>Create Account</Link></Button>
             <Button variant="contained" sx={buttonStyle}><Link to='/login/'>Log in</Link></Button>
             <Button variant="contained" sx={buttonStyle}><Link to='/guest/'>Continue As Guest</Link></Button>
