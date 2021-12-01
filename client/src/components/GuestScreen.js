@@ -43,8 +43,7 @@ const HomeScreen = () => {
     let listCard = "";
     if (store) {
         listCard = 
-            <List sx={{ width: '90%', left: '5%', bgcolor: 'light-gray' }}>
-                
+            <List sx={{ width: '90%', left: '5%', bgcolor: 'background.paper' }}>
             {
                 store.listObjs.map((obj) => (
                     <ListCard
@@ -80,7 +79,7 @@ const HomeScreen = () => {
                 <IconButton
                     size="large"
                     edge="end"
-                    aria-label="home"
+                    aria-label="account of current user"
                     color={homeColor}
                 >
                     <HomeIcon sx={{fontSize: '40px'}}/>
@@ -90,17 +89,7 @@ const HomeScreen = () => {
                 <IconButton
                     size="large"
                     edge="end"
-                    aria-label="all"
-                    color={comColor}
-                >
-                    <GroupIcon sx={{fontSize: '40px'}}/>
-                </IconButton>
-            </Box>
-            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                <IconButton
-                    size="large"
-                    edge="end"
-                    aria-label="user"
+                    aria-label="account of current user"
                     color={userColor}
                 >
                     <PersonIcon sx={{fontSize: '40px'}}/>
@@ -110,19 +99,29 @@ const HomeScreen = () => {
                 <IconButton
                     size="large"
                     edge="end"
-                    aria-label="community"
+                    aria-label="account of current user"
+                    color={comColor}
+                >
+                    <GroupIcon sx={{fontSize: '40px'}}/>
+                </IconButton>
+            </Box>
+            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                <IconButton
+                    size="large"
+                    edge="end"
+                    aria-label="account of current user"
                     color={sumColor}
                 >
                     <FunctionsIcon sx={{fontSize: '40px'}}/>
                 </IconButton>
             </Box>
-            <TextField id="outlined-basic" label="Search" variant="outlined" sx={{marginLeft:'20px',width:'50%',backgroundColor:'white'}}/>
+            <TextField id="outlined-basic" label="Search" variant="outlined" sx={{marginLeft:'20px',width:'50%'}}/>
             <Stack sx={{ display: { xs: 'none', md: 'flex', marginLeft: 'auto' } }}>
                 <IconButton
                     size="large"
                     edge="end"
                     aria-label="account of current user"
-                    /*aria-controls={menuId}*/
+                    aria-controls={menuId}
                     aria-haspopup="true"
                     onClick={handleProfileMenuOpen}
                     color="inherit"

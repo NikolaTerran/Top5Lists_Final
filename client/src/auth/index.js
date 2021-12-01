@@ -16,7 +16,7 @@ function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
         loggedIn: false,
-        alert: ""
+        alert: "",
     });
     const history = useHistory();
 
@@ -74,7 +74,7 @@ function AuthContextProvider(props) {
                     }
                 })
                 history.push("/");
-                store.loadIdNamePairs();
+                store.loadListObjs();
             } 
         }catch(err){
             authReducer({
@@ -98,7 +98,7 @@ function AuthContextProvider(props) {
                     }
                 })
                 history.push("/");
-                store.loadIdNamePairs();
+                store.loadListObjs();
             }
         }catch(err){
             authReducer({

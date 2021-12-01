@@ -53,6 +53,11 @@ updateTop5List = async (req, res) => {
 
         top5List.name = body.name
         top5List.items = body.items
+        top5List.likes = body.likes
+        top5List.dislikes = body.dislikes
+        top5List.comments = body.comments
+        top5List.views = body.views
+
         top5List
             .save()
             .then(() => {
@@ -108,7 +113,7 @@ getTop5Lists = async (req, res) => {
         return res.status(200).json({ success: true, data: top5Lists })
     }).catch(err => console.log(err))
 }
-getTop5ListPairs = async (req, res) => {
+getTop5ListObjs = async (req, res) => {
     await Top5List.find({ownerEmail: req.userEmail}, (err, top5Lists) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
@@ -121,16 +126,23 @@ getTop5ListPairs = async (req, res) => {
         }
         else {
             // PUT ALL THE LISTS INTO ID, NAME PAIRS
-            let pairs = [];
+            let objs = [];
             for (let key in top5Lists) {
                 let list = top5Lists[key];
-                let pair = {
+                let obj = {
                     _id: list._id,
-                    name: list.name
+                    name: list.name,
+                    items: list.items,
+                    userName: list.userName,
+                    likes: list.likes,
+                    dislikes: list.dislikes,
+                    views: list.views,
+                    comments: list.comments,
+                    updatedAt: list.updatedAt
                 };
-                pairs.push(pair);
+                objs.push(obj);
             }
-            return res.status(200).json({ success: true, idNamePairs: pairs })
+            return res.status(200).json({ success: true, Objs: objs })
         }
     }).catch(err => console.log(err))
 }
@@ -140,6 +152,6 @@ module.exports = {
     updateTop5List,
     deleteTop5List,
     getTop5Lists,
-    getTop5ListPairs,
-    getTop5ListById
+    getTop5ListById,
+    getTop5ListObjs
 }

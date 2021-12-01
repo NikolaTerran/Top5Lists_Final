@@ -25,14 +25,15 @@ const api = axios.create({
 export const createTop5List = (payload) => api.post(`/top5list/`, payload)
 export const getAllTop5Lists = () => api.get(`/top5lists/`)
 export const getTop5ListPairs = () => api.get(`/top5listpairs/`)
+export const getTop5ListObjs = () => api.get(`/top5listobjs/`)
 export const updateTop5ListById = (id, payload) => api.put(`/top5list/${id}`, payload)
 export const deleteTop5ListById = (id) => api.delete(`/top5list/${id}`)
 export const getTop5ListById = (id) => api.get(`/top5list/${id}`)
-
 export const getLoggedIn = () => api.get(`/loggedIn/`);
 export const registerUser = (payload) => api.post(`/register/`, payload)
 export const loginUser = (payload) => api.post(`/login/`, payload)
 export const logoutUser = () => api.get(`/logout/`)
+export const updateUser = (payload) => api.post(`/updateuser`,payload)
 
 const apis = {
     createTop5List,
@@ -44,7 +45,9 @@ const apis = {
     getLoggedIn,
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    getTop5ListObjs,
+    updateUser
 }
 
 export default apis

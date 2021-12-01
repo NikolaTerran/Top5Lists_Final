@@ -18,7 +18,7 @@ getLoggedIn = async (req, res) => {
 
 registerUser = async (req, res) => {
     try {
-        const { firstName, lastName, email, password, passwordVerify } = req.body;
+        const { firstName, lastName, email, password, passwordVerify, likedLists, dislikedLists } = req.body;
         if (!firstName || !lastName || !email || !password || !passwordVerify) {
             return res
                 .status(400)
@@ -53,7 +53,7 @@ registerUser = async (req, res) => {
         const passwordHash = await bcrypt.hash(password, salt);
 
         const newUser = new User({
-            firstName, lastName, email, passwordHash
+            firstName, lastName, email, passwordHash, likedLists, dislikedLists
         });
         const savedUser = await newUser.save();
 
@@ -125,8 +125,50 @@ loginUser = async (req, res) => {
     }
 }
 
+// updateUser = async (req, res) => {
+//     const body = req.body
+//     console.log("updateUser: " + JSON.stringify(body));
+//     if (!body) {
+//         return res.status(400).json({
+//             success: false,
+//             error: 'You must provide a body to update',
+//         })
+//     }
+
+//     User.findOne({ email: req.body.email }, (err, user) => {
+//         console.log("user found: " + JSON.stringify(user));
+//         if (err) {
+//             return res.status(404).json({
+//                 err,
+//                 message: 'user not found!',
+//             })
+//         }
+
+//         user.likedLists = body.likedLists
+//         user.dislikedLists = body.dislikedLists
+
+//         user.save()
+//             .then(() => {
+//                 console.log("SUCCESS!!!");
+//                 return res.status(200).json({
+//                     success: true,
+//                     user: user,
+//                     message: 'user updated!',
+//                 })
+//             })
+//             .catch(error => {
+//                 console.log("FAILURE: " + JSON.stringify(error));
+//                 return res.status(404).json({
+//                     error,
+//                     message: 'user not updated!',
+//                 })
+//             })
+//     })
+// }
+
 module.exports = {
     getLoggedIn,
     registerUser,
-    loginUser
+    loginUser,
+    //updateUser
 }

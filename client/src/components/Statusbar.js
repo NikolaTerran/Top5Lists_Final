@@ -2,6 +2,7 @@ import { useContext } from 'react'
 import { GlobalStoreContext } from '../store'
 import { Fab, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
+import AuthContext from '../auth';
 
 /*
     Our Status bar React component goes at the bottom of our UI.
@@ -9,6 +10,7 @@ import AddIcon from '@mui/icons-material/Add';
     @author McKilla Gorilla
 */
 function Statusbar() {
+    const { auth } = useContext(AuthContext);
     const { store } = useContext(GlobalStoreContext);
     let text ="";
 
@@ -23,7 +25,7 @@ function Statusbar() {
                 <Typography variant="h4">{text}</Typography>
             </div>
         );
-    }else{
+    }else if(auth.loggedIn){
         return(
         <div id="top5-statusbar">
             <Fab 
@@ -31,6 +33,7 @@ function Statusbar() {
                 aria-label="add"
                 id="add-list-button"
                 onClick={handleCreateNewList}
+                disabled={store.isListNameActive}
                 >
                 <AddIcon />
             </Fab>
@@ -38,6 +41,8 @@ function Statusbar() {
         </div>
         )
     }
+    
+    return(<div id="top5-statusbar"></div>)
 }
 
 export default Statusbar;

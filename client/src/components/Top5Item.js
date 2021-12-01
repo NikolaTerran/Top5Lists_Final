@@ -20,6 +20,8 @@ function Top5Item(props) {
 
     function handleDragStart(event, targetId) {
         event.dataTransfer.setData("item", targetId);
+        store.setIsItemEditActive(true)
+        store.unsave()
     }
 
     function handleDragOver(event) {
@@ -41,6 +43,7 @@ function Top5Item(props) {
     function handleToggleEdit(event) {
         event.stopPropagation();
         toggleEdit();
+        store.unsave()
         event.target.blur()
     }
     function toggleEdit() {
@@ -78,6 +81,7 @@ function Top5Item(props) {
 
         // UPDATE THE LIST
         store.addMoveItemTransaction(sourceId, targetId);
+        store.setIsItemEditActive(false)
     }
 
     let itemClass = "top5-item";
@@ -134,7 +138,7 @@ function Top5Item(props) {
                     width: '100%'
                 }}
             >
-        <Box sx={{ p: 1 }}>
+            <Box sx={{ p: 1 }}>
                 <IconButton aria-label='edit' onClick={handleToggleEdit} onKeyPress={handleKeyPress} onBlur={handleBlur} onChange={handleUpdateText}>
                     <EditIcon style={{fontSize:'48pt'}}  />
                 </IconButton>
