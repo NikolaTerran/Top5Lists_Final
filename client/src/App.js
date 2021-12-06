@@ -10,8 +10,7 @@ import {
     LoginScreen,
     Statusbar,
     WorkspaceScreen,
-    AlertModel,
-    GuestScreen
+    AlertModel
 } from './components'
 import DeleteModal from './components/DeleteModel';
 /*
@@ -36,7 +35,6 @@ const App = () => {
                         <Route path="/register/" exact component={RegisterScreen} />
                         <Route path="/login/" exact component={LoginScreen} />
                         <Route path="/top5list/:id" exact component={WorkspaceScreen} />
-                        <Route path="/guest/" exact component={GuestScreen} />
                     </Switch>
                     <Statusbar />
                     <AlertModel />
