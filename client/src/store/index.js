@@ -1,10 +1,11 @@
 import { createContext, useContext, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import jsTPS from '../common/jsTPS'
-import api, { getAllTop5Lists } from '../api'
+import api from '../api'
 import MoveItem_Transaction from '../transactions/MoveItem_Transaction'
 import UpdateItem_Transaction from '../transactions/UpdateItem_Transaction'
 import AuthContext from '../auth'
+
 /*
     This is our global data store. Note that it uses the Flux design pattern,
     which makes use of things like actions and reducers. 
@@ -27,7 +28,11 @@ export const GlobalStoreActionType = {
     SET_ITEM_EDIT_ACTIVE: "SET_ITEM_EDIT_ACTIVE",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     SET_SAVE_STATE: "SET_SAVE_STATE",
-    LOAD_LIST_OBJS: "LOAD_LIST_OBJS"
+    LOAD_LIST_OBJS: "LOAD_LIST_OBJS",
+    SWITCH_TAB: "SWITCH_TAB",
+    RESET: "RESET",
+    REFRESH: "REFRESH",
+    CLEAR_OBJS: "CLEAR_OBJS"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -45,7 +50,10 @@ function GlobalStoreContextProvider(props) {
         listMarkedForDeletion: null,
         saveState: "",
         listObjs: [],
-        tab: 0
+        tab: 0,
+        doNothing: 0,
+        searchBarText: "",
+        guest: 0
     });
     const history = useHistory();
 
@@ -67,7 +75,9 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: null,
                     saveState: store.saveState,
                     listObjs: payload.listObjs,
-                    tab: store.tab
+                    tab: store.tab,
+                    doNothing: 0,
+                    guest: store.guest
                 });
             }
             // STOP EDITING THE CURRENT LIST
@@ -80,7 +90,9 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: null,
                     saveState: store.saveState,
                     listObjs: store.listObjs,
-                    tab: store.tab
+                    tab: store.tab,
+                    doNothing: 0,
+                    guest: store.guest
                 })
             }
             // CREATE A NEW LIST
@@ -93,7 +105,9 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: null,
                     saveState: store.saveState,
                     listObjs: store.listObjs,
-                    tab: store.tab
+                    tab: store.tab,
+                    doNothing: 0,
+                    guest: store.guest
                 })
             }
             // PREPARE TO DELETE A LIST
@@ -106,7 +120,9 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: payload,
                     saveState: store.saveState,
                     listObjs: store.listObjs,
-                    tab: store.tab
+                    tab: store.tab,
+                    doNothing: 0,
+                    guest: store.guest
                 });
             }
             // PREPARE TO DELETE A LIST
@@ -119,7 +135,9 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: null,
                     saveState: store.saveState,
                     listObjs: store.listObjs,
-                    tab: store.tab
+                    tab: store.tab,
+                    doNothing: 0,
+                    guest: store.guest
                 });
             }
             // UPDATE A LIST
@@ -132,7 +150,9 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: null,
                     saveState: store.saveState,
                     listObjs: store.listObjs,
-                    tab: store.tab
+                    tab: store.tab,
+                    doNothing: 0,
+                    guest: store.guest
                 });
             }
             // START EDITING A LIST ITEM
@@ -145,7 +165,9 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: null,
                     saveState: store.saveState,
                     listObjs: store.listObjs,
-                    tab: store.tab
+                    tab: store.tab,
+                    doNothing: 0,
+                    guest: store.guest
                 });
             }
             // START EDITING A LIST NAME
@@ -158,7 +180,9 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: null,
                     saveState: store.saveState,
                     listObjs: store.listObjs,
-                    tab: store.tab
+                    tab: store.tab,
+                    doNothing: 0,
+                    guest: store.guest
                 });
             }
             // SET SAVE STATE
@@ -171,7 +195,9 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: null,
                     saveState: payload,
                     listObjs: store.listObjs,
-                    tab: store.tab
+                    tab: store.tab,
+                    doNothing: 0,
+                    guest: store.guest
                 })
             }
             // LOAD LIST OBJS
@@ -183,8 +209,79 @@ function GlobalStoreContextProvider(props) {
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
                     saveState: store.saveState,
+                    listObjs: payload.Objs,
+                    tab: payload.Tab,
+                    doNothing: 0,
+                    searchBarText: payload.searchBarText,
+                    guest: store.guest
+                })
+            }
+            // SWITCH TAB
+            case GlobalStoreActionType.SWITCH_TAB: {
+                return setStore({
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null,
+                    saveState: store.saveState,
+                    listObjs: store.listObjs,
+                    tab: payload,
+                    doNothing: 0,
+                    guest: store.guest
+                })
+            }
+            // GET RID OF EVERYTHING
+            case GlobalStoreActionType.RESET: {
+                return setStore({
+                    currentList: null,
+                    newListCounter: 0,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null,
+                    saveState: "",
+                    listObjs: null,
+                    tab: 0,
+                    doNothing: 0,
+                    guest: store.guest
+                })
+            }
+            // do something
+            case GlobalStoreActionType.REFRESH: {
+                return setStore({
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null,
+                    saveState: store.saveState,
+                    listObjs: store.listObjs,
+                    tab: store.tab,
+                    doNothing: payload,
+                    guest: store.guest
+                })
+            }
+            // clear objs
+            case GlobalStoreActionType.CLEAR_OBJS:{
+                return setStore({
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null,
+                    saveState: store.saveState,
+                    listObjs: null,
+                    tab: 2,
+                    doNothing: 0,
+                    guest: store.guest
+                })
+            }
+            // init guest mode
+            case GlobalStoreActionType.GUEST:{
+                return setStore({
                     listObjs: payload,
-                    tab: store.tab
+                    tab: 3,
+                    guest: 1
                 })
             }
             default:
@@ -225,6 +322,29 @@ function GlobalStoreContextProvider(props) {
         }
     }
 
+    store.refresh = function (){
+        let ran = Math.floor(Math.random() * 100);
+        storeReducer({
+            type: GlobalStoreActionType.CLOSE_CURRENT_LIST,
+            payload: ran
+        });
+    }
+
+    store.initGuest = async function (){
+        try{
+            const response = await api.getCommunityLists();
+            if (response.data.success) {
+                let objs= response.data.Objs;
+                storeReducer({
+                    type: GlobalStoreActionType.GUEST,
+                    payload: objs
+                });
+            }   
+        }catch{
+            console.log("API FAILED TO GET ALL LIST OBJS");
+        }
+    } 
+
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
     store.closeCurrentList = function () {
         storeReducer({
@@ -236,21 +356,19 @@ function GlobalStoreContextProvider(props) {
         history.push("/");
     }
 
-
     // THIS FUNCTION CREATES A NEW LIST
     store.createNewList = async function () {
         let newListName = "Untitled" + store.newListCounter;
-        console.log(auth.user)
         let payload = {
             name: newListName,
             items: ["?", "?", "?", "?", "?"],
             ownerEmail: auth.user.email,
             userName: auth.user.firstName + " " + auth.user.lastName,
             likes: [],
-            dislikes: ["-1"],
+            dislikes: [],
             views: 0,
-            comments: []
-
+            comments: [],
+            status: "not published"
         };
         const response = await api.createTop5List(payload);
         if (response.data.success) {
@@ -277,12 +395,148 @@ function GlobalStoreContextProvider(props) {
                 let objs= response.data.Objs;
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_LIST_OBJS,
-                    payload: objs
+                    payload: {Objs: objs, Tab: 0}
                 });
             }   
         }catch{
             console.log("API FAILED TO GET THE LIST OBJS");
         }
+    }
+
+    store.loadCom = async function () {
+        try{
+            const response = await api.getCommunityLists();
+            if (response.data.success) {
+                let objs= response.data.Objs;
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_LIST_OBJS,
+                    payload: {Objs: objs, Tab: 3}
+                });
+            }   
+        }catch{
+            console.log("API FAILED TO GET COMMUNITY LIST OBJS");
+        }
+    }
+
+    store.loadUserLists = async function (param) {
+        try{
+            const response = await api.getUserListObjs(param);
+            if (response.data.success) {
+                let objs= response.data.Objs;
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_LIST_OBJS,
+                    payload: {Objs: objs, Tab: 2}
+                });
+            }   
+        }catch{
+            console.log("API FAILED TO GET USER LIST OBJS");
+            auth.setAlert("The user does not exist or owns any list!");
+        }
+    }
+
+    store.filterOwned = async function (param) {
+        if(param === ""){
+            store.loadListObjs()
+        }else{
+            try{
+                const response = await api.getTop5ListObjs();
+                if (response.data.success) {
+                    let objs= response.data.Objs.filter(obj => obj.name.includes(param));
+                    storeReducer({
+                        type: GlobalStoreActionType.LOAD_LIST_OBJS,
+                        payload: {Objs: objs, Tab: 0}
+                    });
+                }   
+            }catch{
+                console.log("API FAILED TO GET THE LIST OBJS");
+            }
+        }
+    }
+
+    store.filterAll = async function (param) {
+        if(param === ""){
+            store.loadAll()
+        }else{
+            try{
+                const response = await api.getAll();
+                if (response.data.success) {
+                    let objs= response.data.Objs.filter(obj => obj.name.includes(param))
+                    storeReducer({
+                        type: GlobalStoreActionType.LOAD_LIST_OBJS,
+                        payload: {Objs: objs, Tab: 1, searchBarText:param}
+                    });
+                } 
+            }catch{
+                console.log("error")
+            }
+        }
+    }
+
+    store.filterCom = async function (param) {
+        if(param === ""){
+            store.loadCom()
+        }else{
+            try{
+                const response = await api.getCommunityLists();
+                if (response.data.success) {
+                    let objs= response.data.Objs.filter(obj => obj.name.includes(param));
+                    storeReducer({
+                        type: GlobalStoreActionType.LOAD_LIST_OBJS,
+                        payload: {Objs: objs, Tab: 3}
+                    });
+                }   
+            }catch{
+                console.log("API FAILED TO GET COMMUNITY LIST OBJS");
+            }
+        }
+    }
+
+    store.loadAll = async function () {
+        try{
+            const response = await api.getAll();
+            if (response.data.success) {
+                let objs= response.data.Objs;
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_LIST_OBJS,
+                    payload: {Objs: objs, Tab: 1}
+                });
+            }   
+        }catch{
+            console.log("API FAILED TO GET ALL LIST OBJS");
+        }
+    }
+
+    store.sort = function (param){
+        let newListObjs = null
+        if(param === 0){
+            newListObjs = store.listObjs.sort(function(a,b){
+                let d1 = new Date(a.updatedAt)
+                let d2 = new Date(b.updatedAt)
+                return d1 - d2
+            })
+        }else if(param === 1){
+            newListObjs = store.listObjs.sort(function(a,b){
+                let d1 = new Date(a.updatedAt)
+                let d2 = new Date(b.updatedAt)
+                return d2 - d1
+            })
+        }else if(param === 2){
+            newListObjs = store.listObjs.sort(function(a,b){
+                return b.views - a.views
+            })
+        }else if(param === 3){
+            newListObjs = store.listObjs.sort(function(a,b){
+                return b.likes.length - a.likes.length
+            })
+        }else if(param === 4){
+            newListObjs = store.listObjs.sort(function(a,b){
+                return b.dislikes.length - a.dislikes.length
+            })
+        }
+        storeReducer({
+            type: GlobalStoreActionType.LOAD_LIST_OBJS,
+            payload: {Objs: newListObjs, Tab: store.tab}
+        });
     }
 
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
@@ -341,10 +595,11 @@ function GlobalStoreContextProvider(props) {
 
     store.resetCurrentList = function() {
         storeReducer({
-            type: GlobalStoreActionType.SET_CURRENT_LIST,
+            type: GlobalStoreActionType.RESET,
             payload: null
         });
     }
+
 
     store.addMoveItemTransaction = function (start, end) {
         let transaction = new MoveItem_Transaction(store, start, end);
@@ -386,48 +641,101 @@ function GlobalStoreContextProvider(props) {
 
     store.increaseView = async function (list){
         list.views += 1
-        const response = await api.updateTop5ListById(list._id, list);
-        if (response.data.success) {
-            store.loadListObjs()
+        if(store.tab===3){
+            const response = await api.updateCommunityList(list._id, list);
+            if (response.data.success) {
+                store.refresh()
+            }
+        }else{
+            const response = await api.updateTop5ListById(list._id, list);
+            if (response.data.success) {
+                store.refresh()
+            }
         }
     }
 
     store.like = async function (list){
         const index = list.likes.indexOf(auth.user.email)
-        if(index === -1){
-            list.likes.push(auth.user.email)
-            if(list.dislikes.indexOf(auth.user.email) > -1){
-                list.dislikes.splice(index, 1);
-            }
-            const response = await api.updateTop5ListById(list._id, list);
-            if (response.data.success) {
-                store.loadListObjs()
+        if(store.tab===3){
+            if(index === -1){
+                list.likes.push(auth.user.email)
+                if(list.dislikes.indexOf(auth.user.email) > -1){
+                    list.dislikes.splice(index, 1);
+                }
+                const response = await api.updateCommunityList(list._id, list);
+                if (response.data.success) {
+                    //store.loadListObjs()
+                    store.refresh()
+                }
+            }else{
+                list.likes.splice(index, 1);
+                const response = await api.updateCommunityList(list._id, list);
+                if (response.data.success) {
+                    //store.loadListObjs()
+                    store.refresh()
+                }
             }
         }else{
-            list.likes.splice(index, 1);
-            const response = await api.updateTop5ListById(list._id, list);
-            if (response.data.success) {
-                store.loadListObjs()
+            if(index === -1){
+                list.likes.push(auth.user.email)
+                if(list.dislikes.indexOf(auth.user.email) > -1){
+                    list.dislikes.splice(index, 1);
+                }
+                const response = await api.updateTop5ListById(list._id, list);
+                if (response.data.success) {
+                    //store.loadListObjs()
+                    store.refresh()
+                }
+            }else{
+                list.likes.splice(index, 1);
+                const response = await api.updateTop5ListById(list._id, list);
+                if (response.data.success) {
+                    //store.loadListObjs()
+                    store.refresh()
+                }
             }
         }
     }
 
     store.dislike = async function (list){
         const index = list.dislikes.indexOf(auth.user.email)
-        if(index === -1){
-            list.dislikes.push(auth.user.email)
-            if(list.likes.indexOf(auth.user.email) > -1){
-                list.likes.splice(index, 1);
-            }
-            const response = await api.updateTop5ListById(list._id, list);
-            if (response.data.success) {
-                store.loadListObjs()
+        if(store.tab === 3){
+            if(index === -1){
+                list.dislikes.push(auth.user.email)
+                if(list.likes.indexOf(auth.user.email) > -1){
+                    list.likes.splice(index, 1);
+                }
+                const response = await api.updateCommunityList(list._id, list);
+                if (response.data.success) {
+                    //store.loadListObjs()
+                    store.refresh()
+                }
+            }else{
+                list.dislikes.splice(index, 1);
+                const response = await api.updateCommunityList(list._id, list);
+                if (response.data.success) {
+                    //store.loadListObjs()
+                    store.refresh()
+                }
             }
         }else{
-            list.dislikes.splice(index, 1);
-            const response = await api.updateTop5ListById(list._id, list);
-            if (response.data.success) {
-                store.loadListObjs()
+            if(index === -1){
+                list.dislikes.push(auth.user.email)
+                if(list.likes.indexOf(auth.user.email) > -1){
+                    list.likes.splice(index, 1);
+                }
+                const response = await api.updateTop5ListById(list._id, list);
+                if (response.data.success) {
+                    //store.loadListObjs()
+                    store.refresh()
+                }
+            }else{
+                list.dislikes.splice(index, 1);
+                const response = await api.updateTop5ListById(list._id, list);
+                if (response.data.success) {
+                    //store.loadListObjs()
+                    store.refresh()
+                }
             }
         }
     }
@@ -446,9 +754,18 @@ function GlobalStoreContextProvider(props) {
         let comment = {user: auth.user.firstName + " " + auth.user.lastName,
                        words: param}
         list.comments.push(comment)
-        const response = await api.updateTop5ListById(list._id, list);
-        if (response.data.success) {
-            store.loadListObjs()
+        if(store.tab === 3){
+            const response = await api.updateCommunityList(list._id, list);
+            if (response.data.success) {
+                //store.loadListObjs()
+                store.refresh()
+            }
+        }else{
+            const response = await api.updateTop5ListById(list._id, list);
+            if (response.data.success) {
+                //store.loadListObjs()
+                store.refresh()
+            }
         }
     }
 
@@ -469,21 +786,20 @@ function GlobalStoreContextProvider(props) {
 
     store.publish = function(){
         let newList = store.currentList
-            newList.likes = []
-            newList.dislikes = []
-            newList.comments = []
-          
+            newList.status = "published"
+
         storeReducer({
             type: GlobalStoreActionType.SET_SAVE_STATE,
             payload: ""
-        },()=>store.closeCurrentList())
+        })
         
         async function pb(param){
-            const response = await api.updateTop5ListById(store.currentList._id, param);
+            const response = await api.publishList(store.currentList._id, param);
             if (response.data.success) {
-                console.log(param)
+                //do nothing
             }}
         pb(newList)
+        store.closeCurrentList()
     }
 
     store.undo = function () {
@@ -517,6 +833,30 @@ function GlobalStoreContextProvider(props) {
             payload: cond
         });
     }
+
+    store.clearObjs = function (){
+        storeReducer({
+            type: GlobalStoreActionType.CLEAR_OBJS,
+            payload: null
+        })
+    }
+    // store.switchTab = function (cond) {
+    //     function hi(){if(cond === 0){
+    //         store.loadListObjs()
+    //     }else if(cond === 1){
+    //         store.loadAll()
+    //     }}
+        
+        
+    //     function function1( callback) {
+    //         storeReducer({
+    //             type: GlobalStoreActionType.SWITCH_TAB,
+    //             payload: cond
+    //         })
+    //         callback();
+    //     } 
+    //     function1(hi)
+    // }
 
     return (
         <GlobalStoreContext.Provider value={{

@@ -42,6 +42,8 @@ function AuthContextProvider(props) {
             }
             case AuthActionType.CHANGE_ALERT: {
                 return setAuth({
+                    user: auth.user,
+                    loggedIn: auth.loggedIn,
                     alert: payload.alert
                 })
             }
@@ -89,6 +91,7 @@ function AuthContextProvider(props) {
     auth.loginUser = async function(userData, store) {
         try{
             const response = await api.loginUser(userData)
+            console.log(userData)
             if (response.status === 200) {
                 authReducer({
                     type: AuthActionType.GET_LOGGED_IN,
@@ -108,6 +111,39 @@ function AuthContextProvider(props) {
                 }
             })
         }
+    }
+
+    auth.guest = async function(store){
+        try{
+            const response = await api.loginUser({email:"guest",password:"12345678"})
+            if (response.status === 200) {
+                authReducer({
+                    type: AuthActionType.GET_LOGGED_IN,
+                    payload: {
+                        user: response.data.user,
+                        loggedIn: true
+                    }
+                })
+                history.push("/");
+                store.initGuest();
+            }
+        }catch(err){
+            authReducer({
+                type: AuthActionType.CHANGE_ALERT,
+                payload: {
+                    alert: err.response.data.errorMessage
+                }
+            })
+        }
+    }
+
+    auth.setAlert = function(payload){
+        authReducer({
+            type: AuthActionType.CHANGE_ALERT,
+            payload: {
+                alert: payload
+            }
+        })
     }
 
     auth.logoutUser = function(){

@@ -1,24 +1,26 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
+const Item = new Schema({
+    item_name: {type: String},
+    points: {type: Number}
+})
+
 const comment = new Schema({
     user: {type: String},
     words: {type: String}
 })
 
-const Top5ListSchema = new Schema(
+const CommunityListSchema = new Schema(
     {
         name: { type: String, required: true },
-        items: { type: [String], required: true },
-        ownerEmail: {type: String, required: true},
-        userName: {type: String, required: true},
+        items: { type: [Item], required: true },
         likes: {type: [String], required: true},
         dislikes: {type: [String], required: true},
         views: {type: Number, required: true},
-        comments: {type: [comment], required: true},
-        status: { type: String, required: true}
+        comments: {type: [comment], required: true}
     },
     { timestamps: true },
 )
 
-module.exports = mongoose.model('Top5List', Top5ListSchema)
+module.exports = mongoose.model('CommunityList', CommunityListSchema)

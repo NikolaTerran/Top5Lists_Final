@@ -14,6 +14,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Collapse } from '@mui/material';
 import { Box } from '@mui/system';
 import { List } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -75,11 +76,11 @@ function ListCard(props) {
         event.preventDefault()
         event.stopPropagation()
         setExpandedId(expandedId === 1 ? -1 : 1);
-        if(expandedId === 1 && Obj.dislikes[0] !== "-1"){
+        if(expandedId === 1 && (Obj.status === "published" || store.tab === 3)){
             store.increaseView(Obj)
         }
     }
-    
+
     function handleAddComment(event) {
         event.stopPropagation()
     }
@@ -98,6 +99,16 @@ function ListCard(props) {
         event.stopPropagation()
         store.dislike(Obj)
     }
+    function handleUserRedirect(event){
+        event.preventDefault()
+        event.stopPropagation()
+        store.loadUserLists(Obj.userName)
+    }
+    function handleCommentRedirect(event){
+        event.preventDefault()
+        event.stopPropagation()
+        store.loadUserLists(event.target.innerText)
+    }
 
     let likeColor = 'default'
     let dislikeColor = 'default'
@@ -110,25 +121,42 @@ function ListCard(props) {
         dislikeColor = 'primary'
     }
 
-    let bgColor = '#dd90dd'
-    let clickBehavior = toggleExpand
-    let bottomLeft = <Typography>Published: {Obj.updatedAt.substring(0,Obj.updatedAt.indexOf('T'))}</Typography>
+    let bgColor = '#8de971'
+    let clickBehavior = handleLoadList
+    let bottomLeft = <IconButton color='primary' onClick={handleToggleEdit} aria-label='edit' sx={{justifyContent:'left', fontSize:'15pt',width:'10%'}}>
+    <EditIcon /> edit
+    </IconButton> 
     let bottomRight = <ExpandMoreIcon/>
 
 
-    if(Obj.dislikes[0] === "-1"){
-        bgColor = '#8de971'
-        clickBehavior = handleLoadList
-        bottomLeft = <IconButton color='primary' onClick={handleToggleEdit} aria-label='edit' sx={{justifyContent:'left', fontSize:'15pt',width:'10%'}}>
-        <EditIcon /> edit
-     </IconButton> 
-    }
+    let listItems = <List  sx={{ width: '100%', height:'100%', bgcolor: '#e1e4cb', borderRadius: '0px 15px 15px 0px'}}></List>
 
-    if(expandedId === 1){
-        bottomRight = <ExpandLessIcon/>
-    }
-
-    let listItems = <List  sx={{ width: '100%', height:'100%', bgcolor: '#e1e4cb', borderRadius: '0px 15px 15px 0px'}}>
+    if(store.tab === 3){
+        bgColor = '#dd90dd'
+        clickBehavior = toggleExpand
+        bottomLeft = <Typography>Uploaded: {Obj.createdAt.substring(0,Obj.createdAt.indexOf('T'))}</Typography>
+        let top5 = Obj.items.slice(0,5);
+        listItems = <List  sx={{ width: '100%', height:'100%', bgcolor: '#e1e4cb', borderRadius: '0px 15px 15px 0px'}}>
+                {
+                    top5.map((item) => (
+                        <Stack>
+                            <Typography variant='h3'>
+                            {item.item_name}
+                            </Typography>
+                            <Typography variant='h6'>
+                            ({item.points} votes)
+                            </Typography>
+                        </Stack>
+                    ))
+                }
+            </List>
+    }else{
+        if(Obj.status === "published"){    
+            bgColor = '#dd90dd'
+            clickBehavior = toggleExpand
+            bottomLeft = <Typography>Published: {Obj.updatedAt.substring(0,Obj.updatedAt.indexOf('T'))}</Typography>
+        }
+        listItems = <List  sx={{ width: '100%', height:'100%', bgcolor: '#e1e4cb', borderRadius: '0px 15px 15px 0px'}}>
                 {
                     Obj.items.map((item) => (
                         <Typography variant='h2'>
@@ -137,24 +165,24 @@ function ListCard(props) {
                     ))
                 }
             </List>
+    }
+
+    if(expandedId === 1){
+        bottomRight = <ExpandLessIcon/>
+    }
 
     let commentItems = <List  sx={{ width: '100%', height:'100%', bgcolor: 'linen', borderRadius: '15px', overflow: 'auto', maxHeight: 300, maxWidth:'100%'}}>
                 {
                     Obj.comments.map((comment) => (
                         <Stack sx={{marginLeft:'3%'}}>
-                        <Typography color='primary' variant='h6'>
-                        {comment.user}
-                        </Typography>
-                        <Typography variant='h4'>
+                        <Typography><Link onClick={handleCommentRedirect}>  {comment.user} </Link></Typography>
+                        <Typography variant='h5'>
                         {comment.words}
                         </Typography>
                         </Stack>
                     ))
                 }
             </List>
-
-    
-
 
     let cardElement =
         <ListItem
@@ -177,23 +205,23 @@ function ListCard(props) {
                 <Grid item xs={10}>
                     <Stack>
                         <Typography variant='h5'> {Obj.name} </Typography>
-                        <Typography variant='h6'> by {Obj.userName} </Typography>
+                        {store.tab !== 3? <Typography>By:<Link onClick={handleUserRedirect}>  {Obj.userName} </Link></Typography> : ""}
                     </Stack>
                 </Grid>
 
                 <Grid item xs={2}>
                     <Stack direction='row'>
-                        <IconButton color={likeColor} onClick={handleLike} aria-label='edit' sx={{justifyContent:'left', fontSize:'15pt'}}>
+                        <IconButton disabled={store.guest? true: false} color={likeColor} onClick={handleLike} aria-label='edit' sx={{justifyContent:'left', fontSize:'15pt'}}>
                             <ThumbUpIcon /> {Obj.likes.length}
                         </IconButton> 
-                        <IconButton color={dislikeColor} onClick={handleDislike} aria-label='edit' sx={{justifyContent:'left', fontSize:'15pt'}}>
-                            <ThumbDownIcon /> {Obj.dislikes[0] === "-1" ? 0 : Obj.dislikes.length}
+                        <IconButton disabled={store.guest? true: false} color={dislikeColor} onClick={handleDislike} aria-label='edit' sx={{justifyContent:'left', fontSize:'15pt'}}>
+                            <ThumbDownIcon /> {Obj.dislikes.length}
                         </IconButton> 
-                        <IconButton onClick={(event) => {
+                        {store.tab === 0? <IconButton onClick={(event) => {
                                 handleDeleteList(event, Obj._id)
                             }} aria-label='delete'>
                                 <DeleteIcon style={{fontSize:'20pt'}} />
-                        </IconButton>
+                        </IconButton> : ""}
                     </Stack>
                 </Grid>
                
@@ -202,7 +230,7 @@ function ListCard(props) {
                     <Grid item xs={12}>
                         <Box sx={{height:"200%"}}>
                         <Stack direction='row' sx={{ height:'90%'}}>
-                        <List sx={{height:'100%', backgroundColor:'linen',width: '15%', alignItems: 'center', position:'relative', borderRadius: '15px 0px 0px 15px'}}>
+                        <List sx={{ backgroundColor:'linen',width: '15%', alignItems: 'center', position:'relative', borderRadius: '15px 0px 0px 15px'}}>
                             <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h3" >1.</Typography></ListItem>
                             <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h3" >2.</Typography></ListItem>
                             <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h3" >3.</Typography></ListItem>
@@ -219,7 +247,7 @@ function ListCard(props) {
                 <Collapse in={expandedId === 1} unmountOnExit sx={{height:'1000px'}}>
                     <Grid item xs={12}>
                         {commentItems}
-                        <TextField id="outlined-basic" label="Add Comment" variant="outlined" sx={{backgroundColor:'white',width:'100%'}} onClick={handleAddComment} onKeyPress={handleSubmitComment}/>
+                        <TextField disabled={store.guest? true: false} id="outlined-basic" label="Add Comment" variant="outlined" sx={{backgroundColor:'white',width:'100%'}} onClick={handleAddComment} onKeyPress={handleSubmitComment}/>
                     </Grid>
                 </Collapse>
                 </Grid>

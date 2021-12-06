@@ -26,20 +26,41 @@ function Statusbar() {
             </div>
         );
     }else if(auth.loggedIn){
-        return(
-        <div id="top5-statusbar">
-            <Fab 
-                color="primary" 
-                aria-label="add"
-                id="add-list-button"
-                onClick={handleCreateNewList}
-                disabled={store.isListNameActive}
-                >
-                <AddIcon />
-            </Fab>
-            <Typography variant="h2">Your Lists</Typography>
-        </div>
-        )
+        if(store.tab === 0){
+            return(
+            <div id="top5-statusbar">
+                <Fab 
+                    color="primary" 
+                    aria-label="add"
+                    id="add-list-button"
+                    onClick={handleCreateNewList}
+                    disabled={store.isListNameActive}
+                    >
+                    <AddIcon />
+                </Fab>
+                <Typography variant="h2">Your Lists</Typography>
+            </div>
+            )
+        }else if(store.tab === 1){
+            return(
+                <div id="top5-statusbar">
+                    <Typography variant="h2">{store.searchBarText? store.searchBarText + " Lists":"All Lists"}</Typography>
+                </div>
+                )
+        }else if(store.tab === 2){
+            return(
+                <div id="top5-statusbar">
+                    <Typography variant="h2">{store.listObjs? store.listObjs[0].userName + " Lists":"User Lists"}</Typography>
+                </div>
+                )
+        }else if(store.tab === 3){
+            return(
+                <div id="top5-statusbar">
+                    <Typography variant="h2">Community Lists</Typography>
+                </div>
+                )
+        }
+        
     }
     
     return(<div id="top5-statusbar"></div>)

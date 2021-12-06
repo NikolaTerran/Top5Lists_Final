@@ -10,8 +10,15 @@ router.delete('/top5list/:id', auth.verify, Top5ListController.deleteTop5List)
 router.get('/top5list/:id', auth.verify, Top5ListController.getTop5ListById)
 router.get('/top5lists', auth.verify, Top5ListController.getTop5Lists)
 router.get('/top5listobjs', auth.verify, Top5ListController.getTop5ListObjs)
+router.get('/all', auth.verify, Top5ListController.getAllListObjs)
+router.get('/user/:param',auth.verify, Top5ListController.getUserObjs)
 router.post('/register', UserController.registerUser)
 router.post('/login', UserController.loginUser)
 router.get('/loggedIn', UserController.getLoggedIn)
+router.put('/publish/:id', auth.verify, Top5ListController.publishTop5List)
+router.get('/community',auth.verify, Top5ListController.getCommunityLists)
+router.put('/community/:id', auth.verify, Top5ListController.updateCommunityList)
+
+
 
 module.exports = router

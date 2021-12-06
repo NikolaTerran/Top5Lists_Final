@@ -23,8 +23,13 @@ const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
 
     useEffect(() => {
-        store.loadListObjs()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        if(store.tab === 0){
+            store.loadListObjs()
+        }else if(store.tab === 1){
+            store.loadAll()
+        }
+        console.log("hi")
+        //eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -38,10 +43,71 @@ const HomeScreen = () => {
         setAnchorEl(null);
     };
 
+    const handleNewest = (event) => {
+        store.sort(0)
+    }
+    const handleOldest = (event) => {
+        store.sort(1)
+    }
+    const handleViews = (event) => {
+        store.sort(2)
+    }
+    const handleLikes = (event) => {
+        store.sort(3)
+    }
+    const handleDislikes = (event) => {
+        store.sort(4)
+    }
+
+    const handleAll = (event) => {
+        store.loadAll()
+    }
+
+    const handleHome = (event) => {
+        store.loadListObjs()
+    }
+
+    const handleUser = (event) => {
+        store.clearObjs()
+    }
+
+    const handleCom = (event) => {
+        store.loadCom()
+    }
+
+    const handleSearchUser = (event) =>{
+        if(event.code === "Enter"){
+            store.loadUserLists(event.target.value)
+            event.target.blur()
+        }
+    }
+
+    const handleOwnedList = (event) =>{
+        if(event.code === "Enter"){
+            store.filterOwned(event.target.value)
+            event.target.blur()
+        }
+    }
+
+    const handleAllList = (event) =>{
+        if(event.code === "Enter"){
+            store.filterAll(event.target.value)
+            event.target.blur()
+        }
+    }
+
+    const handleCommunityList = (event) =>{
+        if(event.code === "Enter"){
+            store.filterCom(event.target.value)
+            event.target.blur()
+        }
+    }
+
+
     const menuId = 'primary-search-account-menu';
 
     let listCard = "";
-    if (store) {
+    if (store.listObjs) {
         listCard = 
             <List sx={{ width: '90%', left: '5%', bgcolor: 'light-gray' }}>
                 
@@ -63,14 +129,20 @@ const HomeScreen = () => {
     let comColor = "inherit"
     let sumColor = "inherit"
 
+    let searchPrompt
+
     if(store.tab === 0){
         homeColor = 'primary'
+        searchPrompt = <TextField id="outlined-basic" onKeyPress={handleOwnedList} label="Search Within Your Lists" variant="outlined" sx={{marginLeft:'20px',width:'50%',backgroundColor:'white'}}/>
     }else if(store.tab === 1){
-        userColor = 'primary'
-    }else if(store.tab === 2){
         comColor = 'primary'
+        searchPrompt = <TextField id="outlined-basic" onKeyPress={handleAllList} label="Search Within All Published Lists" variant="outlined" sx={{marginLeft:'20px',width:'50%',backgroundColor:'white'}}/>
+    }else if(store.tab === 2){
+        userColor = 'primary'
+        searchPrompt = <TextField id="outlined-basic" onKeyPress={handleSearchUser} label="Search Users" variant="outlined" sx={{marginLeft:'20px',width:'50%',backgroundColor:'white'}}/>
     }else if(store.tab === 3){
         sumColor = 'primary'
+        searchPrompt = <TextField id="outlined-basic" onKeyPress={handleCommunityList} label="Search Community Lists" variant="outlined" sx={{marginLeft:'20px',width:'50%',backgroundColor:'white'}}/>
     }
 
     return (
@@ -82,6 +154,8 @@ const HomeScreen = () => {
                     edge="end"
                     aria-label="home"
                     color={homeColor}
+                    onClick={handleHome}
+                    disabled={store.guest? true: false}
                 >
                     <HomeIcon sx={{fontSize: '40px'}}/>
                 </IconButton>
@@ -92,6 +166,7 @@ const HomeScreen = () => {
                     edge="end"
                     aria-label="all"
                     color={comColor}
+                    onClick={handleAll}
                 >
                     <GroupIcon sx={{fontSize: '40px'}}/>
                 </IconButton>
@@ -102,6 +177,7 @@ const HomeScreen = () => {
                     edge="end"
                     aria-label="user"
                     color={userColor}
+                    onClick={handleUser}
                 >
                     <PersonIcon sx={{fontSize: '40px'}}/>
                 </IconButton>
@@ -112,11 +188,12 @@ const HomeScreen = () => {
                     edge="end"
                     aria-label="community"
                     color={sumColor}
+                    onClick={handleCom}
                 >
                     <FunctionsIcon sx={{fontSize: '40px'}}/>
                 </IconButton>
             </Box>
-            <TextField id="outlined-basic" label="Search" variant="outlined" sx={{marginLeft:'20px',width:'50%',backgroundColor:'white'}}/>
+            {searchPrompt}
             <Stack sx={{ display: { xs: 'none', md: 'flex', marginLeft: 'auto' } }}>
                 <IconButton
                     size="large"
@@ -145,11 +222,11 @@ const HomeScreen = () => {
                 open={isMenuOpen}
                 onClose={handleMenuClose}
             >
-                <MenuItem >Publish Date (Newest)</MenuItem>
-                <MenuItem >Publish Date (Oldest)</MenuItem>
-                <MenuItem >Views</MenuItem>
-                <MenuItem >Likes</MenuItem>
-                <MenuItem >Dislikes</MenuItem>
+                <MenuItem onClick={handleNewest}>Publish Date (Newest)</MenuItem>
+                <MenuItem onClick={handleOldest}>Publish Date (Oldest)</MenuItem>
+                <MenuItem onClick={handleViews}>Views</MenuItem>
+                <MenuItem onClick={handleLikes}>Likes</MenuItem>
+                <MenuItem onClick={handleDislikes}>Dislikes</MenuItem>
             </Menu>
             </div>
             <div id="list-selector-list">
