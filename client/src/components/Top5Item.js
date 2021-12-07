@@ -60,7 +60,7 @@ function Top5Item(props) {
     }
     function handleBlur(event) {
         if(newText !== "" && newText !== text){
-            store.addUpdateItemTransaction(index,event.target.value)
+            store.addUpdateItemTransaction(index,event.target.value.trim())
             toggleEdit();
         }else{
             toggleEdit();

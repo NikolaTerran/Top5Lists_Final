@@ -27,10 +27,7 @@ export default function LoginScreen() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     // eslint-disable-next-line no-console
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+
     auth.loginUser({
         email: data.get('email'),
         password: data.get('password')

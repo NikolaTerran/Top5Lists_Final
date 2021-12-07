@@ -27,8 +27,9 @@ const HomeScreen = () => {
             store.loadListObjs()
         }else if(store.tab === 1){
             store.loadAll()
+        }else if(store.tab === 3){
+            store.loadCom()
         }
-        console.log("hi")
         //eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -45,18 +46,23 @@ const HomeScreen = () => {
 
     const handleNewest = (event) => {
         store.sort(0)
+        handleMenuClose()
     }
     const handleOldest = (event) => {
         store.sort(1)
+        handleMenuClose()
     }
     const handleViews = (event) => {
         store.sort(2)
+        handleMenuClose()
     }
     const handleLikes = (event) => {
         store.sort(3)
+        handleMenuClose()
     }
     const handleDislikes = (event) => {
         store.sort(4)
+        handleMenuClose()
     }
 
     const handleAll = (event) => {

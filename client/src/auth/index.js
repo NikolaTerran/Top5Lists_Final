@@ -76,7 +76,7 @@ function AuthContextProvider(props) {
                     }
                 })
                 history.push("/");
-                store.loadListObjs();
+                store.nonGuest();
             } 
         }catch(err){
             authReducer({
@@ -91,7 +91,6 @@ function AuthContextProvider(props) {
     auth.loginUser = async function(userData, store) {
         try{
             const response = await api.loginUser(userData)
-            console.log(userData)
             if (response.status === 200) {
                 authReducer({
                     type: AuthActionType.GET_LOGGED_IN,
@@ -101,7 +100,7 @@ function AuthContextProvider(props) {
                     }
                 })
                 history.push("/");
-                store.loadListObjs();
+                store.nonGuest();
             }
         }catch(err){
             authReducer({

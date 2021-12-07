@@ -68,7 +68,7 @@ function GlobalStoreContextProvider(props) {
             // LIST UPDATE OF ITS NAME
             case GlobalStoreActionType.CHANGE_LIST_NAME: {
                 return setStore({
-                    currentList: null,
+                    currentList: payload.currentList,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -173,7 +173,7 @@ function GlobalStoreContextProvider(props) {
             // START EDITING A LIST NAME
             case GlobalStoreActionType.SET_LIST_NAME_EDIT_ACTIVE: {
                 return setStore({
-                    currentList: payload,
+                    currentList: store.currentList,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: payload,
                     isItemEditActive: false,
@@ -279,9 +279,16 @@ function GlobalStoreContextProvider(props) {
             // init guest mode
             case GlobalStoreActionType.GUEST:{
                 return setStore({
-                    listObjs: payload,
-                    tab: 3,
-                    guest: 1
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null,
+                    saveState: store.saveState,
+                    listObjs: payload.Objs,
+                    tab: payload.tab,
+                    doNothing: 0,
+                    guest: payload.guest
                 })
             }
             default:
@@ -306,13 +313,25 @@ function GlobalStoreContextProvider(props) {
                         response = await api.getTop5ListObjs();
                         if (response.data.success) {
                             let objs = response.data.Objs;
-                            storeReducer({
-                                type: GlobalStoreActionType.CHANGE_LIST_NAME,
-                                payload: {
-                                    listObjs: objs,
-                                    top5List: top5List
-                                }
-                            });
+                            if(store.currentList){
+                                storeReducer({
+                                    type: GlobalStoreActionType.CHANGE_LIST_NAME,
+                                    payload: {
+                                        listObjs: objs,
+                                        top5List: top5List,
+                                        currentList: top5List
+                                    }
+                                });
+                            }else{
+                                storeReducer({
+                                    type: GlobalStoreActionType.CHANGE_LIST_NAME,
+                                    payload: {
+                                        listObjs: objs,
+                                        top5List: top5List,
+                                        currentList: null
+                                    }
+                                });
+                            }
                         }
                     }
                     getListObjs(top5List);
@@ -337,7 +356,22 @@ function GlobalStoreContextProvider(props) {
                 let objs= response.data.Objs;
                 storeReducer({
                     type: GlobalStoreActionType.GUEST,
-                    payload: objs
+                    payload: {Objs: objs, tab: 3, guest: 1}
+                });
+            }   
+        }catch{
+            console.log("API FAILED TO GET ALL LIST OBJS");
+        }
+    } 
+
+    store.nonGuest = async function (){
+        try{
+            const response = await api.getTop5ListObjs();
+            if (response.data.success) {
+                let objs= response.data.Objs;
+                storeReducer({
+                    type: GlobalStoreActionType.GUEST,
+                    payload: {Objs: objs, tab: 0, guest: 0}
                 });
             }   
         }catch{
@@ -441,14 +475,14 @@ function GlobalStoreContextProvider(props) {
             try{
                 const response = await api.getTop5ListObjs();
                 if (response.data.success) {
-                    let objs= response.data.Objs.filter(obj => obj.name.includes(param));
+                    let objs= response.data.Objs.filter(obj => obj.name.toLowerCase().includes(param.toLowerCase()));
                     storeReducer({
                         type: GlobalStoreActionType.LOAD_LIST_OBJS,
                         payload: {Objs: objs, Tab: 0}
                     });
                 }   
-            }catch{
-                console.log("API FAILED TO GET THE LIST OBJS");
+            }catch(err){
+                console.log(err);
             }
         }
     }
@@ -460,7 +494,7 @@ function GlobalStoreContextProvider(props) {
             try{
                 const response = await api.getAll();
                 if (response.data.success) {
-                    let objs= response.data.Objs.filter(obj => obj.name.includes(param))
+                    let objs= response.data.Objs.filter(obj => obj.name.toLowerCase().includes(param.toLowerCase()))
                     storeReducer({
                         type: GlobalStoreActionType.LOAD_LIST_OBJS,
                         payload: {Objs: objs, Tab: 1, searchBarText:param}
@@ -479,7 +513,7 @@ function GlobalStoreContextProvider(props) {
             try{
                 const response = await api.getCommunityLists();
                 if (response.data.success) {
-                    let objs= response.data.Objs.filter(obj => obj.name.includes(param));
+                    let objs= response.data.Objs.filter(obj => obj.name.toLowerCase().includes(param.toLowerCase()));
                     storeReducer({
                         type: GlobalStoreActionType.LOAD_LIST_OBJS,
                         payload: {Objs: objs, Tab: 3}
@@ -509,17 +543,27 @@ function GlobalStoreContextProvider(props) {
     store.sort = function (param){
         let newListObjs = null
         if(param === 0){
-            newListObjs = store.listObjs.sort(function(a,b){
-                let d1 = new Date(a.updatedAt)
-                let d2 = new Date(b.updatedAt)
-                return d1 - d2
-            })
-        }else if(param === 1){
-            newListObjs = store.listObjs.sort(function(a,b){
-                let d1 = new Date(a.updatedAt)
-                let d2 = new Date(b.updatedAt)
+            newListObjs = store.listObjs.filter(x => x.status==="published").sort(function(a,b){
+                let d1 = new Date(a.publishedDate)
+                let d2 = new Date(b.publishedDate)
+                if(store.tab === 3){
+                    d1 = new Date(a.createdAt)
+                    d2 = new Date(b.createdAt)
+                }
                 return d2 - d1
             })
+            newListObjs = newListObjs.concat(store.listObjs.filter(x => x.status==="not published"))
+        }else if(param === 1){
+            newListObjs = store.listObjs.filter(x => x.status==="published").sort(function(a,b){
+                let d1 = new Date(a.publishedDate)
+                let d2 = new Date(b.publishedDate)
+                if(store.tab === 3){
+                    d1 = new Date(a.createdAt)
+                    d2 = new Date(b.createdAt)
+                }
+                return d1 - d2
+            })
+            newListObjs = newListObjs.concat(store.listObjs.filter(x => x.status==="not published"))
         }else if(param === 2){
             newListObjs = store.listObjs.sort(function(a,b){
                 return b.views - a.views
@@ -792,14 +836,35 @@ function GlobalStoreContextProvider(props) {
             type: GlobalStoreActionType.SET_SAVE_STATE,
             payload: ""
         })
-        
         async function pb(param){
-            const response = await api.publishList(store.currentList._id, param);
-            if (response.data.success) {
-                //do nothing
-            }}
+            try{
+                const response = await api.publishList(store.currentList._id, param);
+                if (response.data.success) {
+                    //do nothing
+                }
+            }catch(err){
+                auth.setAlert(err.response.data.errorMessage)
+            }
+        }
         pb(newList)
         store.closeCurrentList()
+    }
+
+    store.canSave = function(){
+        let check = 1
+        for(let i=0 ; i<5;i++){
+            if(!store.currentList.items[i].toString().charAt(0).toLowerCase().match(/^[0-9a-z]+$/)){
+                check = 0
+            }
+            for(let j=0; j< 5; j++){
+                if(i !== j){
+                    if(store.currentList.items[i].toString().toLowerCase().trim() === store.currentList.items[j].toString().toLowerCase().trim()){
+                        check=0
+                    }
+                }
+            }
+        }
+        return check === 1
     }
 
     store.undo = function () {

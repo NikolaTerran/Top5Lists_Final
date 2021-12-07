@@ -187,7 +187,8 @@ getTop5ListObjs = async (req, res) => {
                     views: list.views,
                     comments: list.comments,
                     updatedAt: list.updatedAt,
-                    status: list.status
+                    status: list.status,
+                    publishedDate: list.publishedDate
                 };
                 objs.push(obj);
             }
@@ -222,7 +223,8 @@ getUserObjs = async (req, res) => {
                     views: list.views,
                     comments: list.comments,
                     updatedAt: list.updatedAt,
-                    status: list.status
+                    status: list.status,
+                    publishedDate: list.publishedDate
                 };
                 objs.push(obj);
             }
@@ -257,7 +259,8 @@ getAllListObjs = async (req, res) => {
                     views: list.views,
                     comments: list.comments,
                     updatedAt: list.updatedAt,
-                    status: list.status
+                    status: list.status,
+                    publishedDate: list.publishedDate
                 };
                 objs.push(obj);
             }
@@ -275,7 +278,7 @@ publishTop5List = (req, res) => {
             error: 'You must provide a body to update',
         })
     }
-
+    
     Top5List.findOne({ _id: req.params.id }, (err, top5List) => {
         console.log("top5List found: " + JSON.stringify(top5List));
         if (err) {
@@ -284,15 +287,25 @@ publishTop5List = (req, res) => {
                 message: 'Top 5 List not found!',
             })
         }
-        top5List.name = body.name
-        top5List.items = body.items
-        top5List.likes = body.likes
-        top5List.dislikes = body.dislikes
-        top5List.comments = body.comments
-        top5List.views = body.views
-        top5List.status = body.status
 
-        CommunityList.findOne({name: top5List.name.toLowerCase()} , (err, communityList) =>{
+        Top5List.find({ $and:[ {ownerEmail: top5List.ownerEmail} , {name: {'$regex': body.name,$options:'i'}} ]}, (err, multi) => {
+            if(multi){
+                if(multi.length > 1){
+                    return res.status(400)
+                    .json({
+                        errorMessage: "You can only publish 1 list with that name! (case insensitive)"
+                    });
+                }else{
+                    top5List.name = body.name
+                    top5List.items = body.items
+                    top5List.likes = body.likes
+                    top5List.dislikes = body.dislikes
+                    top5List.comments = body.comments
+                    top5List.views = body.views
+                    top5List.status = body.status
+                    top5List.publishedDate = body.updatedAt
+
+        CommunityList.findOne({name: {'$regex': top5List.name,$options:'i'}} , (err, communityList) =>{
             if (err) {
                 console.log(communityList)
             }
@@ -301,7 +314,7 @@ publishTop5List = (req, res) => {
                     let item = {}
                     item.item_name = body.items[i]
                     item.points = 5 - i
-                    let index = communityList.items.findIndex(x => x.item_name === item.item_name)
+                    let index = communityList.items.findIndex(x => x.item_name.toLowerCase().replace(/\s/g, '') === item.item_name.toLowerCase().replace(/\s/g, ''))
                     if(index > -1){
                         communityList.items[index].points += item.points
                     }else{
@@ -356,6 +369,10 @@ publishTop5List = (req, res) => {
                     message: 'Top 5 List not updated!',
                 })
             })
+
+                }
+            }
+        })        
     })    
 }
 

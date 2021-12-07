@@ -59,7 +59,7 @@ function ListCard(props) {
     function handleBlur(event) {
         let id = event.target.id.substring("list-".length);
         if(text !== ""){
-            store.changeListName(id, text)
+            store.changeListName(id, text.trim())
         }
         toggleEdit();
     }
@@ -89,6 +89,8 @@ function ListCard(props) {
             if(event.target.value !== ""){
                 store.submitComment(Obj, event.target.value)
             }
+            event.target.value = ""
+            event.target.blur()
         }
     }
     function handleLike(event){
@@ -140,7 +142,7 @@ function ListCard(props) {
                 {
                     top5.map((item) => (
                         <Stack>
-                            <Typography variant='h3'>
+                            <Typography variant='h4'>
                             {item.item_name}
                             </Typography>
                             <Typography variant='h6'>
@@ -154,12 +156,12 @@ function ListCard(props) {
         if(Obj.status === "published"){    
             bgColor = '#dd90dd'
             clickBehavior = toggleExpand
-            bottomLeft = <Typography>Published: {Obj.updatedAt.substring(0,Obj.updatedAt.indexOf('T'))}</Typography>
+            bottomLeft = <Typography>Published: {Obj.publishedDate.substring(0,Obj.publishedDate.indexOf('T'))}</Typography>
         }
-        listItems = <List  sx={{ width: '100%', height:'100%', bgcolor: '#e1e4cb', borderRadius: '0px 15px 15px 0px'}}>
+        listItems = <List  sx={{ width: '100%', bgcolor: '#e1e4cb', borderRadius: '0px 15px 15px 0px'}}>
                 {
                     Obj.items.map((item) => (
-                        <Typography variant='h2'>
+                        <Typography variant='h4' sx={{height:'20%'}}>
                         {item}
                         </Typography>
                     ))
@@ -231,11 +233,11 @@ function ListCard(props) {
                         <Box sx={{height:"200%"}}>
                         <Stack direction='row' sx={{ height:'90%'}}>
                         <List sx={{ backgroundColor:'linen',width: '15%', alignItems: 'center', position:'relative', borderRadius: '15px 0px 0px 15px'}}>
-                            <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h3" >1.</Typography></ListItem>
-                            <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h3" >2.</Typography></ListItem>
-                            <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h3" >3.</Typography></ListItem>
-                            <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h3" >4.</Typography></ListItem>
-                            <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h3" >5.</Typography></ListItem>
+                            <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h4" >1.</Typography></ListItem>
+                            <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h4" >2.</Typography></ListItem>
+                            <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h4" >3.</Typography></ListItem>
+                            <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h4" >4.</Typography></ListItem>
+                            <ListItem sx={{height:'20%', display:'flex', justifyContent:'center'}}><Typography variant="h4" >5.</Typography></ListItem>
                         </List>
                         {listItems}
                         </Stack>
