@@ -134,6 +134,38 @@ deleteTop5List = async (req, res) => {
                 message: 'Top 5 List not found!',
             })
         }
+        let markForDeletion = 0
+        CommunityList.findOne({name: {'$regex': top5List.name,$options:'i'}} , (err, communityList) =>{
+            if (err) {
+                console.log(communityList)
+            }
+            if (communityList){
+                for(let i = 0; i < 5; i++){
+                    let item = {}
+                    item.item_name = top5List.items[i]
+                    item.points = 5 - i
+                    let index = communityList.items.findIndex(x => x.item_name.toLowerCase().replace(/\s/g, '') === item.item_name.toLowerCase().replace(/\s/g, ''))
+                    if(index > -1){
+                        communityList.items[index].points -= item.points
+                    }
+                }
+                communityList.items.sort(function(a,b){
+                    return b.points - a.points})
+                communityList
+                    .save()
+                    .catch(error => {
+                        console.log(error)
+                    })
+                for(let x = 0; x < communityList.items.length; x++){
+                    markForDeletion += communityList.items[x].points
+                }
+                if(markForDeletion === 0){
+                    CommunityList.findOneAndDelete({ _id: communityList._id }, () => {
+                        console.log("\n\n\n\n\n\n\n\n\n success\n\n\n\n\n\n\n")
+                    })
+                }
+            }
+        })
         Top5List.findOneAndDelete({ _id: req.params.id }, () => {
             return res.status(200).json({ success: true, data: top5List })
         }).catch(err => console.log(err))
